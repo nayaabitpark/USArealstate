@@ -22,6 +22,10 @@
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const FALLBACK_IMG = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=900&q=80";
 
+  // old shared links (index.html?property=<id>) now open the property's own page
+  const legacyId = new URLSearchParams(location.search).get("property");
+  if (legacyId && UUID_RE.test(legacyId)) { location.replace("property.html?id=" + encodeURIComponent(legacyId)); return; }
+
   const photosOf = p => (p.image_urls && p.image_urls.length) ? p.image_urls : (p.image_url ? [p.image_url] : [FALLBACK_IMG]);
 
   const form = $("#leadForm");
@@ -90,7 +94,7 @@
       return `
       <article class="property-card" id="property-${escapeHTML(p.id)}">
         <div class="property-image">
-          <img loading="lazy" src="${escapeHTML(photosOf(p)[0])}" alt="${escapeHTML(p.title)}">
+          <img loading="lazy" referrerpolicy="no-referrer" src="${escapeHTML(photosOf(p)[0])}" alt="${escapeHTML(p.title)}" onerror="this.parentNode.classList.add('no-photo')">
           <span class="property-tag">${p.listing_type === "rent" ? "For rent" : "For sale"}</span>
           ${photosOf(p).length > 1 ? `<button type="button" class="gal-btn gal-prev" aria-label="Previous photo">‹</button><button type="button" class="gal-btn gal-next" aria-label="Next photo">›</button><span class="gal-count">1 / ${photosOf(p).length}</span>` : ""}
         </div>
@@ -99,7 +103,7 @@
           <h3>${escapeHTML(p.title)}</h3>
           <p class="property-address">${escapeHTML([p.address,p.city,p.state,p.zip_code].filter(Boolean).join(", "))}</p>
           <div class="property-meta"><span>${beds ? beds + " Beds" : "Studio"}</span><span>${Number(p.baths)||0} Baths</span><span>${escapeHTML(TYPE_LABELS[p.property_type] || "Property")}</span>${p.sqft ? `<span>${Number(p.sqft).toLocaleString("en-US")} Sq Ft</span>` : ""}</div>
-          <a class="property-link" href="#contact" data-id="${escapeHTML(p.id)}">REQUEST DETAILS ↗</a>
+          <a class="property-link" href="property.html?id=${encodeURIComponent(p.id)}">VIEW DETAILS ↗</a>
         </div>
       </article>`;
     }).join("");
@@ -120,6 +124,7 @@
     let i = Number(box.dataset.i || 0);
     i = (i + (btn.classList.contains("gal-next") ? 1 : -1) + photos.length) % photos.length;
     box.dataset.i = i;
+    box.classList.remove("no-photo");
     box.querySelector("img").src = photos[i];
     box.querySelector(".gal-count").textContent = (i + 1) + " / " + photos.length;
   });

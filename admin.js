@@ -10,8 +10,8 @@
   const BUCKET = "property-images";
   const { houseLabel, addressLine } = window.LeadExport;
   const money = n => Number(n).toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
-  // public page of a listing (index.html sits next to admin.html)
-  const propertyLink = id => new URL("index.html?property=" + encodeURIComponent(id), location.href).href;
+  // public details page of a listing (property.html sits next to admin.html)
+  const propertyLink = id => new URL("property.html?id=" + encodeURIComponent(id), location.href).href;
   const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 
   const photosOf = p => (p.image_urls && p.image_urls.length) ? p.image_urls : (p.image_url ? [p.image_url] : []);

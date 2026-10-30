@@ -4,6 +4,7 @@ A responsive English real-estate lead-generation website with Supabase data stor
 
 ## Files
 - `index.html` — public homepage, property search, inquiry form
+- `property.html`, `js/property.js` — a property's own details page (photos, info, inquiry form)
 - `admin.html` — admin sign-in, lead list/status updates, add/activate properties
 - `privacy.html` — starter privacy notice (must be customized)
 - `styles.css`, `admin.css` — responsive styling
@@ -15,7 +16,7 @@ A responsive English real-estate lead-generation website with Supabase data stor
 
 ## Features
 - Visitors pick a property with "Request details"; the inquiry is saved with that property. Email is optional.
-- Every property has a shareable link: `index.html?property=<id>` (use "Copy link" in Admin → Properties for Facebook posts etc.).
+- Every property has a shareable link: `property.html?id=<id>` (use "Copy link" in Admin → Properties for Facebook posts etc.).
 - Admin → Properties: upload a photo from your computer (resized to max 1600px and stored in the `property-images` bucket).
 - Admin → Customer leads: shows each lead's property and "Download Excel" exports all leads in your sheet layout (Traffic Name, Number, Rent / Price, House, Address, Post List, Text Link, Id name, then Email, Interest, Status, Message, Date).
 
