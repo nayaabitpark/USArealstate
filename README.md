@@ -1,0 +1,36 @@
+# USA Real Estate — starter website
+
+A responsive English real-estate lead-generation website with Supabase data storage and a protected admin dashboard.
+
+## Files
+- `index.html` — public homepage, property search, inquiry form
+- `admin.html` — admin sign-in, lead list/status updates, add/activate properties
+- `privacy.html` — starter privacy notice (must be customized)
+- `styles.css`, `admin.css` — responsive styling
+- `js/config.js` — Supabase URL and publishable key
+- `js/app.js`, `js/admin.js` — frontend behavior
+- `supabase-schema.sql` — database tables, grants, and Row Level Security policies
+
+## Setup
+1. In Supabase SQL Editor, run `supabase-schema.sql`.
+2. Open `js/config.js` and replace `PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE` with the project's **publishable** key. Never use a `service_role` or secret key in browser code.
+3. In Supabase Dashboard → Authentication → Users, create the admin user using the authorized admin email. Set a strong unique password and enable MFA if available.
+4. Copy that user's UUID. In SQL Editor, run:
+   ```sql
+   insert into public.admin_users (user_id)
+   values ('PASTE_AUTH_USER_UUID_HERE');
+   ```
+5. Deploy the folder to GitHub Pages or another static host. Ensure `index.html`, `admin.html`, `privacy.html`, CSS, and JS files keep the same relative paths.
+6. Test an inquiry from a private/incognito browser. Then sign in at `/admin.html` and verify the lead is visible.
+
+## Security notes
+- Public visitors can insert inquiries but cannot read them.
+- Admin authorization is checked against `admin_users`; the database RLS policies enforce access.
+- Never expose Supabase secret/service-role keys in frontend files.
+- Add CAPTCHA/anti-spam and server-side rate limiting before running paid traffic campaigns. Consider a Supabase Edge Function or trusted server endpoint for stronger abuse controls.
+- Configure allowed redirect URLs and site URL in Supabase Auth.
+- The privacy notice is a starter only. Have it reviewed and completed for your business and the states in which you operate.
+- This is a lead-generation website starter, not a brokerage license, MLS feed, fair-housing compliance review, or legal advice.
+
+## Important image note
+Replace the sample image URLs with licensed property photography you have permission to use. Update the hero image URL in `styles.css` if you want a different hero photo.
