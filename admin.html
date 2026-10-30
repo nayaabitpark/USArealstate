@@ -13,8 +13,8 @@
 <form id="propertyForm" class="property-admin-form"><h3>Add a property</h3>
 <div class="form-row"><label>Title *<input name="title" required maxlength="160"></label><label>Listing type *<select name="listing_type" required><option value="rent">For rent</option><option value="sale">For sale</option></select></label></div>
 <div class="form-row"><label>Price (USD) *<input name="price" type="number" min="0" required></label><label>Property type *<select name="property_type" required><option value="house">House</option><option value="apartment">Apartment</option><option value="condo">Condo</option><option value="townhouse">Townhouse</option><option value="room">Room</option><option value="other">Other</option></select></label></div>
-<label>Property photo <span class="file-hint">JPG, PNG or WebP. Resized automatically.</span><input id="propertyImage" name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
-<div id="imagePreview" class="image-preview" hidden><img alt="Selected photo preview"><button type="button" id="removeImage" class="status-select">Remove photo</button></div>
+<label>Property photos <span class="file-hint">JPG, PNG or WebP. Select as many as you want (you can add more in several rounds). The first photo is the cover.</span><input id="propertyImage" name="image" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+<div id="imagePreview" class="image-preview" hidden><div class="preview-bar"><span id="photoCount"></span><button type="button" id="removeImage" class="status-select">Remove all</button></div><div id="imagePreviewList" class="thumb-grid"></div></div>
 <label>Street address<input name="address" maxlength="200"></label>
 <div class="form-row"><label>City<input name="city"></label><label>State<input name="state" maxlength="2" placeholder="NY"></label><label>ZIP<input name="zip_code" maxlength="12"></label></div>
 <div class="form-row"><label>Bedrooms<input name="beds" type="number" min="0" value="1"></label><label>Bathrooms<input name="baths" type="number" min="0" step=".5" value="1"></label><label>Sq Ft<input name="sqft" type="number" min="0"></label></div>

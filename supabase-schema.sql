@@ -188,3 +188,11 @@ notify pgrst, 'reload schema';
 -- IMPORTANT: Create the Auth user in Supabase Dashboard first.
 -- Then replace USER_AUTH_UUID below with that user's real UUID and run:
 -- insert into public.admin_users (user_id) values ('USER_AUTH_UUID');
+
+-- ============================================================================
+-- v3 upgrade (safe to re-run): multiple photos per property
+-- ============================================================================
+alter table public.properties add column if not exists image_urls text[] not null default '{}';
+update public.properties set image_urls = array[image_url]
+where image_url is not null and coalesce(array_length(image_urls,1),0) = 0;
+notify pgrst, 'reload schema';
