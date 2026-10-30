@@ -102,6 +102,9 @@ for update to authenticated using (
 );
 
 grant usage on schema public to anon, authenticated;
+-- Supabase grants ALL privileges on new public tables to anon/authenticated by default.
+-- Reset to least privilege first, then grant only what the site needs.
+revoke all on public.admin_users, public.properties, public.leads from anon, authenticated;
 grant select on public.properties to anon, authenticated;
 grant insert on public.leads to anon, authenticated;
 grant select, insert, update, delete on public.properties to authenticated;

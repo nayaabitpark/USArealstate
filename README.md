@@ -13,14 +13,11 @@ A responsive English real-estate lead-generation website with Supabase data stor
 
 ## Setup
 1. In Supabase SQL Editor, run `supabase-schema.sql`.
-2. Open `js/config.js` and replace `PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE` with the project's **publishable** key. Never use a `service_role` or secret key in browser code.
+2. `js/config.js` already contains this project's URL and **publishable** key. Never use a `service_role` or secret key in browser code.
 3. In Supabase Dashboard → Authentication → Users, create the admin user using the authorized admin email. Set a strong unique password and enable MFA if available.
-4. Copy that user's UUID. In SQL Editor, run:
-   ```sql
-   insert into public.admin_users (user_id)
-   values ('PASTE_AUTH_USER_UUID_HERE');
-   ```
-5. Deploy the folder to GitHub Pages or another static host. Ensure `index.html`, `admin.html`, `privacy.html`, CSS, and JS files keep the same relative paths.
+4. Open `supabase-make-admin.sql`, replace `YOUR_ADMIN_EMAIL` with that user's email, and run it in the SQL Editor (no UUID copying needed). It should return exactly 1 row.
+5. Optional: run `supabase-sample-properties.sql` to add 3 test listings (replace with real listings before launch).
+6. Deploy the folder to GitHub Pages or another static host. Ensure `index.html`, `admin.html`, `privacy.html`, CSS, and JS files keep the same relative paths.
 6. Test an inquiry from a private/incognito browser. Then sign in at `/admin.html` and verify the lead is visible.
 
 ## Security notes
