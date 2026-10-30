@@ -94,13 +94,13 @@
       return `
       <article class="property-card" id="property-${escapeHTML(p.id)}">
         <div class="property-image">
-          <img loading="lazy" referrerpolicy="no-referrer" src="${escapeHTML(photosOf(p)[0])}" alt="${escapeHTML(p.title)}" onerror="this.parentNode.classList.add('no-photo')">
+          <img loading="lazy" referrerpolicy="no-referrer" src="${escapeHTML(photosOf(p)[0])}" alt="${escapeHTML(p.title)}" onerror="this.parentNode.classList.add('no-photo');console.warn('Photo failed to load:',this.src)">
           <span class="property-tag">${p.listing_type === "rent" ? "For rent" : "For sale"}</span>
           ${photosOf(p).length > 1 ? `<button type="button" class="gal-btn gal-prev" aria-label="Previous photo">‹</button><button type="button" class="gal-btn gal-next" aria-label="Next photo">›</button><span class="gal-count">1 / ${photosOf(p).length}</span>` : ""}
         </div>
         <div class="property-info">
           <p class="property-price">${money(p.price,p.listing_type)}</p>
-          <h3>${escapeHTML(p.title)}</h3>
+          <h3><a href="property.html?id=${encodeURIComponent(p.id)}">${escapeHTML(p.title)}</a></h3>
           <p class="property-address">${escapeHTML([p.address,p.city,p.state,p.zip_code].filter(Boolean).join(", "))}</p>
           <div class="property-meta"><span>${beds ? beds + " Beds" : "Studio"}</span><span>${Number(p.baths)||0} Baths</span><span>${escapeHTML(TYPE_LABELS[p.property_type] || "Property")}</span>${p.sqft ? `<span>${Number(p.sqft).toLocaleString("en-US")} Sq Ft</span>` : ""}</div>
           <a class="property-link" href="property.html?id=${encodeURIComponent(p.id)}">VIEW DETAILS ↗</a>
@@ -116,7 +116,12 @@
   // photo slider on property cards (one listener, survives re-renders)
   $("#propertyGrid").addEventListener("click", e => {
     const btn = e.target.closest(".gal-btn");
-    if (!btn) return;
+    if (!btn) {
+      // click anywhere else on a card opens that property's own page
+      const c = e.target.closest(".property-card");
+      if (c && !e.target.closest("a,button")) location.href = "property.html?id=" + encodeURIComponent(c.id.slice("property-".length));
+      return;
+    }
     const card = btn.closest(".property-card");
     const p = allProperties.find(x => "property-" + x.id === card.id);
     if (!p) return;

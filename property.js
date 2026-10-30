@@ -24,7 +24,7 @@
 
   async function load() {
     const { data, error } = await client.from("properties")
-      .select("id,title,description,price,listing_type,property_type,address,city,state,zip_code,beds,baths,sqft,image_url,image_urls")
+      .select("id,title,description,price,listing_type,property_type,address,city,state,zip_code,beds,baths,sqft,image_url,image_urls,created_at")
       .eq("id", id).eq("is_active", true).maybeSingle();
     if (error) { console.error(error); showMissing("This property could not be loaded right now. Please try again later."); return; }
     if (!data) { showMissing(); return; }
@@ -89,8 +89,28 @@
       li.append(b, s); ul.append(li);
     });
 
-    if (p.description && p.description.trim()) $("#pdDesc").textContent = p.description.trim();
-    else $("#pdDescWrap").hidden = true;
+    $("#pdDesc").textContent = (p.description && p.description.trim()) || "Contact our team for more details about this property.";
+
+    const rows = [
+      ["Listing", p.listing_type === "rent" ? "For rent" : "For sale"],
+      ["Property type", TYPE_LABELS[p.property_type] || "Property"],
+      ["Bedrooms", beds ? String(beds) : "Studio"],
+      ["Bathrooms", String(baths)],
+      ["Size", p.sqft ? Number(p.sqft).toLocaleString("en-US") + " sq ft" : ""],
+      ["Address", p.address || ""],
+      ["City", p.city || ""],
+      ["State", p.state || ""],
+      ["ZIP code", p.zip_code || ""],
+      ["Listed on", p.created_at ? new Date(p.created_at).toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"}) : ""]
+    ];
+    const dl = $("#pdDetails");
+    rows.filter(r => r[1]).forEach(([k, v]) => {
+      const dt = document.createElement("dt"); dt.textContent = k;
+      const dd = document.createElement("dd"); dd.textContent = v;
+      dl.append(dt, dd);
+    });
+    const place = [p.address, p.city, p.state, p.zip_code].filter(Boolean).join(", ");
+    if (place) { const a = $("#pdMap"); a.href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(place); a.hidden = false; }
 
     const form = $("#leadForm");
     form.elements.interest.value = p.listing_type === "rent" ? "rent" : "buy";

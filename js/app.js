@@ -22,6 +22,12 @@
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const FALLBACK_IMG = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=900&q=80";
 
+  // old shared links (index.html?property=<id>) now open the property's own page
+  const legacyId = new URLSearchParams(location.search).get("property");
+  if (legacyId && UUID_RE.test(legacyId)) { location.replace("property.html?id=" + encodeURIComponent(legacyId)); return; }
+
+  const photosOf = p => (p.image_urls && p.image_urls.length) ? p.image_urls : (p.image_url ? [p.image_url] : [FALLBACK_IMG]);
+
   const form = $("#leadForm");
   const chip = $("#selectedProperty");
   let allProperties = [];
@@ -51,7 +57,7 @@
       return;
     }
     const { data, error } = await client.from("properties")
-      .select("id,title,description,price,listing_type,property_type,address,city,state,zip_code,beds,baths,sqft,image_url")
+      .select("id,title,description,price,listing_type,property_type,address,city,state,zip_code,beds,baths,sqft,image_url,image_urls")
       .eq("is_active", true).order("created_at", {ascending:false});
     if (error) {
       grid.innerHTML = '<div class="empty-state">Property listings are temporarily unavailable. Please try again later.</div>';
@@ -88,15 +94,16 @@
       return `
       <article class="property-card" id="property-${escapeHTML(p.id)}">
         <div class="property-image">
-          <img loading="lazy" src="${escapeHTML(p.image_url || FALLBACK_IMG)}" alt="${escapeHTML(p.title)}">
+          <img loading="lazy" referrerpolicy="no-referrer" src="${escapeHTML(photosOf(p)[0])}" alt="${escapeHTML(p.title)}" onerror="this.parentNode.classList.add('no-photo');console.warn('Photo failed to load:',this.src)">
           <span class="property-tag">${p.listing_type === "rent" ? "For rent" : "For sale"}</span>
+          ${photosOf(p).length > 1 ? `<button type="button" class="gal-btn gal-prev" aria-label="Previous photo">‹</button><button type="button" class="gal-btn gal-next" aria-label="Next photo">›</button><span class="gal-count">1 / ${photosOf(p).length}</span>` : ""}
         </div>
         <div class="property-info">
           <p class="property-price">${money(p.price,p.listing_type)}</p>
-          <h3>${escapeHTML(p.title)}</h3>
+          <h3><a href="property.html?id=${encodeURIComponent(p.id)}">${escapeHTML(p.title)}</a></h3>
           <p class="property-address">${escapeHTML([p.address,p.city,p.state,p.zip_code].filter(Boolean).join(", "))}</p>
           <div class="property-meta"><span>${beds ? beds + " Beds" : "Studio"}</span><span>${Number(p.baths)||0} Baths</span><span>${escapeHTML(TYPE_LABELS[p.property_type] || "Property")}</span>${p.sqft ? `<span>${Number(p.sqft).toLocaleString("en-US")} Sq Ft</span>` : ""}</div>
-          <a class="property-link" href="#contact" data-id="${escapeHTML(p.id)}">REQUEST DETAILS ↗</a>
+          <a class="property-link" href="property.html?id=${encodeURIComponent(p.id)}">VIEW DETAILS ↗</a>
         </div>
       </article>`;
     }).join("");
@@ -105,6 +112,27 @@
       if (p) selectProperty(p);
     }));
   }
+
+  // photo slider on property cards (one listener, survives re-renders)
+  $("#propertyGrid").addEventListener("click", e => {
+    const btn = e.target.closest(".gal-btn");
+    if (!btn) {
+      // click anywhere else on a card opens that property's own page
+      const c = e.target.closest(".property-card");
+      if (c && !e.target.closest("a,button")) location.href = "property.html?id=" + encodeURIComponent(c.id.slice("property-".length));
+      return;
+    }
+    const card = btn.closest(".property-card");
+    const p = allProperties.find(x => "property-" + x.id === card.id);
+    if (!p) return;
+    const photos = photosOf(p), box = btn.closest(".property-image");
+    let i = Number(box.dataset.i || 0);
+    i = (i + (btn.classList.contains("gal-next") ? 1 : -1) + photos.length) % photos.length;
+    box.dataset.i = i;
+    box.classList.remove("no-photo");
+    box.querySelector("img").src = photos[i];
+    box.querySelector(".gal-count").textContent = (i + 1) + " / " + photos.length;
+  });
 
   $("#searchForm").addEventListener("submit", e => {
     e.preventDefault();

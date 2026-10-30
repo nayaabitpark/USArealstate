@@ -1,42 +1,38 @@
-# USA Real Estate — starter website
+# USA Real Estate — website
 
-A responsive English real-estate lead-generation website with Supabase data storage and a protected admin dashboard.
+Responsive English real-estate lead-generation site with Supabase storage and a protected admin dashboard.
 
-## Files
-- `index.html` — public homepage, property search, inquiry form
-- `property.html`, `js/property.js` — a property's own details page (photos, info, inquiry form)
-- `admin.html` — admin sign-in, lead list/status updates, add/activate properties
-- `privacy.html` — starter privacy notice (must be customized)
-- `styles.css`, `admin.css` — responsive styling
-- `js/config.js` — Supabase URL and publishable key
-- `js/app.js`, `js/admin.js` — frontend behavior
-- `js/export.js`, `js/xlsx-lite.js` — "Download Excel" for leads (small built-in writer, no external library)
-- `features.css` — styles for the selected-property box, photo upload and lead table
-- `supabase-schema.sql` — database tables, grants, Row Level Security policies, and the v2 upgrade (optional email, property link on leads, property type, photo storage bucket)
+## Folder layout (keep exactly like this)
+```
+index.html  property.html  admin.html  privacy.html
+styles.css  features.css   admin.css
+js/  config.js  app.js  property.js  admin.js  export.js  xlsx-lite.js
+supabase-schema.sql  supabase-fix-images.sql  supabase-make-admin.sql  supabase-sample-properties.sql
+```
 
 ## Features
-- Visitors pick a property with "Request details"; the inquiry is saved with that property. Email is optional.
-- Every property has a shareable link: `property.html?id=<id>` (use "Copy link" in Admin → Properties for Facebook posts etc.).
-- Admin → Properties: upload a photo from your computer (resized to max 1600px and stored in the `property-images` bucket).
-- Admin → Customer leads: shows each lead's property and "Download Excel" exports all leads in your sheet layout (Traffic Name, Number, Rent / Price, House, Address, Post List, Text Link, Id name, then Email, Interest, Status, Message, Date).
+- Home page: search, property cards with photo slider. Click a card to open that property's own page.
+- `property.html?id=<id>`: all photos, price, address, bed/bath/type/size, description, full details list, map link and an inquiry form. The inquiry is saved with that property.
+- Admin → Properties: add a property with unlimited photos; **Edit** any property (change info, add/remove photos, choose the cover photo); **Deactivate/Activate**; **Delete**. Hidden properties stay in the list.
+- Admin → Customer leads: lead list, status updates, "Download Excel".
+- "Copy link" gives the property page link to paste in Facebook posts etc.
 
 ## Setup
-1. In Supabase SQL Editor, run `supabase-schema.sql`.
-2. `js/config.js` already contains this project's URL and **publishable** key. Never use a `service_role` or secret key in browser code.
-3. In Supabase Dashboard → Authentication → Users, create the admin user using the authorized admin email. Set a strong unique password and enable MFA if available.
-4. Open `supabase-make-admin.sql`, replace `YOUR_ADMIN_EMAIL` with that user's email, and run it in the SQL Editor (no UUID copying needed). It should return exactly 1 row.
-5. Optional: run `supabase-sample-properties.sql` to add 3 test listings (replace with real listings before launch).
-6. Deploy the folder to GitHub Pages or another static host. Ensure `index.html`, `admin.html`, `privacy.html`, CSS, and JS files keep the same relative paths.
-6. Test an inquiry from a private/incognito browser. Then sign in at `/admin.html` and verify the lead is visible.
+1. Supabase SQL Editor: run `supabase-schema.sql`, then **`supabase-fix-images.sql`** (makes the photo bucket public, adds multi-photo support, edit/delete permissions). Safe to re-run.
+2. `js/config.js` has the project URL and **publishable** key. Never put a `service_role`/secret key in browser code.
+3. Supabase → Authentication → Users: create the admin user (strong password, MFA if possible).
+4. Run `supabase-make-admin.sql` (replace `YOUR_ADMIN_EMAIL`). It must return exactly 1 row.
+5. Optional: `supabase-sample-properties.sql` for 3 test listings.
+6. Deploy the whole folder (GitHub Pages or any static host) keeping the same paths.
+7. Test an inquiry from a private browser window, then sign in at `/admin.html`.
+
+## If a photo does not show
+Run `supabase-fix-images.sql` (bucket must be public). Then in Admin → Properties click **Edit** on that property and upload the photo again.
 
 ## Security notes
-- Public visitors can insert inquiries but cannot read them.
-- Admin authorization is checked against `admin_users`; the database RLS policies enforce access.
-- Never expose Supabase secret/service-role keys in frontend files.
-- Add CAPTCHA/anti-spam and server-side rate limiting before running paid traffic campaigns. Consider a Supabase Edge Function or trusted server endpoint for stronger abuse controls.
+- Visitors can insert inquiries but cannot read them. Admin access is enforced by RLS via `admin_users`.
+- Add CAPTCHA / rate limiting before paid traffic campaigns.
 - Configure allowed redirect URLs and site URL in Supabase Auth.
-- The privacy notice is a starter only. Have it reviewed and completed for your business and the states in which you operate.
-- This is a lead-generation website starter, not a brokerage license, MLS feed, fair-housing compliance review, or legal advice.
-
-## Important image note
-Replace the sample image URLs with licensed property photography you have permission to use. Update the hero image URL in `styles.css` if you want a different hero photo.
+- The privacy notice is a starter only; have it reviewed for your business and states.
+- This is a lead-generation starter, not a brokerage license, MLS feed, fair-housing review, or legal advice.
+- Use only photos you have permission to use.

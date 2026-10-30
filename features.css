@@ -70,3 +70,30 @@
 .pd-missing h1{font:600 38px "Playfair Display",serif;color:var(--navy);margin:0 0 12px}
 .pd-missing p{color:var(--muted);font-size:14px;margin:0 0 28px}
 @media(max-width:900px){.pd-grid{grid-template-columns:1fr;gap:10px}.pd-aside{position:static;margin-top:20px}.pd-page{padding:28px 16px 70px}}
+
+/* --- v5: edit / delete properties, clickable cards, details list --- */
+.property-card{cursor:pointer}
+.property-info h3{margin:0 0 6px;font-size:15px;color:var(--navy)}
+.property-info h3 a:hover{color:#98733d}
+.property-admin-form label.check-row{flex-direction:row;align-items:center;gap:10px;font-weight:600}
+.property-admin-form label.check-row input{width:auto;padding:0;margin:0}
+.form-buttons{display:flex;gap:10px;flex-wrap:wrap}
+.row-actions{white-space:nowrap}
+.row-actions .status-select{margin:0 6px 6px 0;cursor:pointer}
+.status-select.danger{color:#b33b35;border-color:#e3b9b6}
+.status-select.danger:hover{background:#fdf1f0}
+.row-hidden{background:#faf7f2}
+.row-hidden .prop-thumb{opacity:.55}
+.badge-hidden{display:inline-block;background:#efe6d6;color:#8a6a33;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;margin-left:4px}
+.prop-thumb.broken{display:grid;place-items:center;font-size:9px;color:#b33b35;text-align:center;background:#fbeeed}
+.thumb-make{position:absolute;left:4px;bottom:4px;border:0;background:rgba(16,27,43,.85);color:#fff;font-size:9px;letter-spacing:.8px;text-transform:uppercase;padding:3px 6px;cursor:pointer}
+.thumb-item.broken img{visibility:hidden}
+.thumb-item.broken{background:#fbeeed;min-height:80px}
+.thumb-item.broken::after{content:"Not loading";position:absolute;inset:0;display:grid;place-items:center;font-size:10px;color:#b33b35}
+.pd-details{margin-top:34px}
+.pd-details dl{display:grid;grid-template-columns:170px 1fr;margin:0;border-top:1px solid var(--line)}
+.pd-details dt,.pd-details dd{margin:0;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+.pd-details dt{color:var(--muted)}
+.pd-details dd{color:var(--navy);font-weight:600}
+.pd-map{display:inline-block;margin-top:18px;font-size:12px;font-weight:700;color:#98733d;border-bottom:1px solid #c9a96e;padding-bottom:4px}
+@media(max-width:600px){.pd-details dl{grid-template-columns:120px 1fr}}
