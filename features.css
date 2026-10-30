@@ -1,0 +1,27 @@
+/* v2 features: property-linked inquiries, photo upload, richer lead table */
+
+/* --- public site: selected property chip in the inquiry form --- */
+.selected-property{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--cream);border:1px solid var(--line);border-left:3px solid var(--gold);padding:12px 14px}
+.selected-property[hidden]{display:none}
+.selected-property div{min-width:0}
+.selected-property span{display:block;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#a78349;font-weight:700;margin-bottom:4px}
+.selected-property b{display:block;font-size:13px;color:var(--navy)}
+.selected-property small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.selected-property button{background:none;border:0;cursor:pointer;font-size:24px;line-height:1;color:#7a8490;padding:2px 8px}
+.selected-property button:hover{color:var(--navy)}
+.property-card.highlight{outline:2px solid var(--gold);outline-offset:4px}
+
+/* --- admin: photo upload + tables --- */
+.file-hint{font-weight:400;color:#737d87;font-size:11px;margin-left:6px}
+.property-admin-form input[type=file]{background:#faf9f6;padding:10px}
+.image-preview{display:flex;align-items:center;gap:14px}
+.image-preview img{width:128px;height:86px;object-fit:cover;border:1px solid #e5e2db;background:#f1efe9}
+.heading-actions{display:flex;gap:10px;flex-wrap:wrap}
+.prop-cell{display:flex;align-items:center;gap:12px}
+.prop-thumb{width:64px;height:44px;object-fit:cover;background:#ecebe6;border:1px solid #e5e2db;flex:0 0 auto;display:block}
+.lead-property b{display:block;color:#172538}
+.lead-property small{display:block;color:#737d87;line-height:1.5}
+.lead-property a{display:inline-block;margin-top:4px;color:#98733d;font-weight:700;font-size:11px}
+.msg-cell{max-width:240px;line-height:1.5;color:#5a6672}
+#leadsPanel table{min-width:1000px}
+#propertiesPanel table{min-width:860px}

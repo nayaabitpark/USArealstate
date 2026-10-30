@@ -9,7 +9,15 @@ A responsive English real-estate lead-generation website with Supabase data stor
 - `styles.css`, `admin.css` — responsive styling
 - `js/config.js` — Supabase URL and publishable key
 - `js/app.js`, `js/admin.js` — frontend behavior
-- `supabase-schema.sql` — database tables, grants, and Row Level Security policies
+- `js/export.js`, `js/xlsx-lite.js` — "Download Excel" for leads (small built-in writer, no external library)
+- `features.css` — styles for the selected-property box, photo upload and lead table
+- `supabase-schema.sql` — database tables, grants, Row Level Security policies, and the v2 upgrade (optional email, property link on leads, property type, photo storage bucket)
+
+## Features
+- Visitors pick a property with "Request details"; the inquiry is saved with that property. Email is optional.
+- Every property has a shareable link: `index.html?property=<id>` (use "Copy link" in Admin → Properties for Facebook posts etc.).
+- Admin → Properties: upload a photo from your computer (resized to max 1600px and stored in the `property-images` bucket).
+- Admin → Customer leads: shows each lead's property and "Download Excel" exports all leads in your sheet layout (Traffic Name, Number, Rent / Price, House, Address, Post List, Text Link, Id name, then Email, Interest, Status, Message, Date).
 
 ## Setup
 1. In Supabase SQL Editor, run `supabase-schema.sql`.
