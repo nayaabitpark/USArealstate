@@ -132,6 +132,7 @@
       preferred_location: [current.city, current.state].filter(Boolean).join(", ") || null,
       message: (v.message || "").trim() || null,
       property_id: current.id,
+      ref_code: (window.RefTracker && window.RefTracker.get()) || null,
       contact_consent: v.contact_consent === "on",
       marketing_consent: v.marketing_consent === "on",
       source: "website"

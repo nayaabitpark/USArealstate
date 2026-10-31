@@ -24,7 +24,8 @@
 
   // old shared links (index.html?property=<id>) now open the property's own page
   const legacyId = new URLSearchParams(location.search).get("property");
-  if (legacyId && UUID_RE.test(legacyId)) { location.replace("property.html?id=" + encodeURIComponent(legacyId)); return; }
+  const refNow = window.RefTracker ? window.RefTracker.get() : null;   // remembers ?ref=employee-code
+  if (legacyId && UUID_RE.test(legacyId)) { location.replace("property.html?id=" + encodeURIComponent(legacyId) + (refNow ? "&ref=" + encodeURIComponent(refNow) : "")); return; }
 
   const photosOf = p => (p.image_urls && p.image_urls.length) ? p.image_urls : (p.image_url ? [p.image_url] : [FALLBACK_IMG]);
 
@@ -163,6 +164,7 @@
       interest: v.interest, preferred_location: (v.preferred_location || "").trim() || null,
       message: (v.message || "").trim() || null,
       property_id: UUID_RE.test(v.property_id || "") ? v.property_id : null,
+      ref_code: (window.RefTracker && window.RefTracker.get()) || null,
       contact_consent: v.contact_consent === "on",
       marketing_consent: v.marketing_consent === "on",
       source: "website"

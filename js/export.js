@@ -40,7 +40,7 @@
     { header: "Date", width: 17 }
   ];
 
-  function build(leads, linkFor) {
+  function build(leads, linkFor, idNameFor) {
     const rows = leads.map((l) => {
       const p = l.properties || null;
       const link = p && linkFor ? linkFor(p.id) : "";
@@ -52,7 +52,7 @@
         p ? addressLine(p) : l.preferred_location || "",
         link ? { text: link, href: link } : null,
         null,
-        null,
+        idNameFor ? (idNameFor(l.ref_code) || null) : null,
         l.email || "",
         l.interest || "",
         l.status || "",
@@ -63,11 +63,11 @@
     return root.XlsxLite.build({ sheetName: "Leads", columns: COLUMNS, rows });
   }
 
-  function download(leads, linkFor) {
+  function download(leads, linkFor, idNameFor) {
     const d = new Date();
     const pad = (n) => String(n).padStart(2, "0");
     const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    root.XlsxLite.download(build(leads, linkFor), `usa-real-estate-leads-${stamp}.xlsx`);
+    root.XlsxLite.download(build(leads, linkFor, idNameFor), `usa-real-estate-leads-${stamp}.xlsx`);
   }
 
   root.LeadExport = { houseLabel, addressLine, build, download, COLUMNS };

@@ -4,10 +4,10 @@ Responsive English real-estate lead-generation site with Supabase storage and a 
 
 ## Folder layout (keep exactly like this)
 ```
-index.html  property.html  admin.html  privacy.html
+index.html  property.html  admin.html  staff.html  privacy.html
 styles.css  features.css   admin.css
-js/  config.js  app.js  property.js  admin.js  export.js  xlsx-lite.js
-supabase-schema.sql  supabase-fix-images.sql  supabase-make-admin.sql  supabase-sample-properties.sql
+js/  config.js  ref.js  app.js  property.js  admin.js  staff.js  export.js  xlsx-lite.js
+supabase-schema.sql  supabase-fix-images.sql  supabase-team.sql  supabase-make-admin.sql  supabase-sample-properties.sql
 ```
 
 ## Features
@@ -15,11 +15,15 @@ supabase-schema.sql  supabase-fix-images.sql  supabase-make-admin.sql  supabase-
 - `property.html?id=<id>`: all photos, price, address, bed/bath/type/size, description, full details list, map link and an inquiry form. The inquiry is saved with that property.
 - Admin → Properties: add a property with unlimited photos; **Edit** any property (change info, add/remove photos, choose the cover photo); **Deactivate/Activate**; **Delete**. Hidden properties stay in the list.
 - Admin → Customer leads: lead list, status updates, "Download Excel".
+- **Team (admin → Team tab):** create employee logins. Each employee gets a tracking code. Links with `?ref=code` credit every inquiry to that employee. Admin sees leads today / last 7 days / total per employee and a day-by-day table by employee. Leads tab can be filtered by employee; Excel "Id name" column = employee.
+- **Employee area (`staff.html`):** an employee sees only their own links, leads and daily counts, and can change their password.
 - "Copy link" gives the property page link to paste in Facebook posts etc.
 
 ## Setup
 1. Supabase SQL Editor: run `supabase-schema.sql`, then **`supabase-fix-images.sql`** (makes the photo bucket public, adds multi-photo support, edit/delete permissions). Safe to re-run.
-2. `js/config.js` has the project URL and **publishable** key. Never put a `service_role`/secret key in browser code.
+1b. Run **`supabase-team.sql`** (employee accounts + lead tracking).
+2. In Supabase → Authentication → Sign In / Providers → Email: turn **off** "Confirm email" so new employee accounts work immediately.
+3. `js/config.js` has the project URL and **publishable** key. Never put a `service_role`/secret key in browser code.
 3. Supabase → Authentication → Users: create the admin user (strong password, MFA if possible).
 4. Run `supabase-make-admin.sql` (replace `YOUR_ADMIN_EMAIL`). It must return exactly 1 row.
 5. Optional: `supabase-sample-properties.sql` for 3 test listings.
