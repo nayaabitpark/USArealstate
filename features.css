@@ -117,3 +117,8 @@
 .staff-table{min-width:640px}
 .staff-table.wide{min-width:900px}
 @media(max-width:650px){.link-box{flex-direction:column;align-items:stretch}}
+
+/* --- v7: advanced details + Manage rental --- */
+.form-subhead{font:700 11px "DM Sans",sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#a78349;border-top:1px solid #eee;padding-top:16px;display:flex;justify-content:space-between;align-items:center}
+.form-subhead span{font-weight:400;letter-spacing:0;text-transform:none;color:#737d87}
+.property-admin-form .form-row label.check-row{align-self:end;padding-bottom:12px}

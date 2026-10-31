@@ -13,7 +13,15 @@
   const dayKey = d => { const x=new Date(d); return x.getFullYear()+"-"+pad2(x.getMonth()+1)+"-"+pad2(x.getDate()); };
   const daysAgo = n => { const d=new Date(); d.setDate(d.getDate()-n); return dayKey(d); };
   const fmtDay = k => new Date(k+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+  const photosOf = window.PropertyForm.photosOf, pathFromUrl = window.PropertyForm.pathFromUrl;
+  const coverOf = p => photosOf(p)[0] || "";
   let me = null;
+  let myLeads = [], myPosts = [];
+  const PF = window.PropertyForm.init({
+    db, mount: $("#propertyFormMount"), labels: { add: "Add a post", edit: "Edit post" },
+    extraInsert: () => ({ posted_by: me.user_id, owner_ref: me.ref_code }),   // credit this employee
+    onSaved: () => { loadPosts(); loadProperties(); }
+  });
 
   const siteLink = () => new URL("index.html?ref=" + encodeURIComponent(me.ref_code), location.href).href;
   const propertyLink = id => new URL("property.html?id=" + encodeURIComponent(id) + "&ref=" + encodeURIComponent(me.ref_code), location.href).href;
@@ -38,7 +46,7 @@
     if(error){say($("#loginMessage"),"Sign-in failed. Check your email and password. If your account is new, your manager may need to turn off email confirmation.",true);return;}
     await showSession();
   });
-  $("#logoutBtn").addEventListener("click",async()=>{me=null;await db.auth.signOut();await showSession();});
+  $("#logoutBtn").addEventListener("click",async()=>{PF.exitEdit();me=null;await db.auth.signOut();await showSession();});
   db.auth.onAuthStateChange(()=>{setTimeout(showSession,0);});
 
   document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{
@@ -51,7 +59,7 @@
     $("#staffSub").textContent="Your tracking code: "+me.ref_code;
     $("#staffSegment").textContent=(me.segment||"EMPLOYEE").toUpperCase();
     $("#siteLink").value=siteLink();
-    loadLeads(); loadProperties();
+    loadLeads(); loadPosts(); loadProperties();
   }
   $("#copySite").addEventListener("click",e=>copyText($("#siteLink").value,e.currentTarget));
   $("#refreshLeads").addEventListener("click",()=>loadLeads());
@@ -98,8 +106,49 @@
         if(data.length<size) break;
       }
     }catch(err){console.error(err);body.innerHTML='<tr><td colspan="6">Could not load your leads. Please try again.</td></tr>';return;}
-    renderStats(all);
+    myLeads=all; renderStats(all); renderPosts();
     body.innerHTML = all.length ? all.slice(0,300).map(leadRow).join("") : '<tr><td colspan="6">No leads yet. Share your links to start getting inquiries.</td></tr>';
+  }
+
+  /* ---------------- my posts (Manage rental) ---------------- */
+  const POST_SELECT = "id,title,description,address,city,state,zip_code,sqft,price,listing_type,property_type,beds,baths,image_url,image_urls,is_active,laundry_type,parking_type,ac_type,heating_type,cat_friendly,dog_friendly,voucher_accepted";
+  async function loadPosts(){
+    const {data,error}=await db.from("properties").select(POST_SELECT).eq("posted_by",me.user_id).order("created_at",{ascending:false});
+    if(error){console.error(error);$("#postsBody").innerHTML='<tr><td colspan="6">Could not load your posts. Ask your manager to run supabase-posts.sql in Supabase.</td></tr>';return;}
+    myPosts=data||[]; renderPosts();
+  }
+  function renderPosts(){
+    const body=$("#postsBody");
+    if(!myPosts.length){body.innerHTML='<tr><td colspan="6">You have not posted anything yet. Use the form above.</td></tr>';return;}
+    const counts=new Map();
+    myLeads.forEach(l=>{ if(l.property_id) counts.set(l.property_id,(counts.get(l.property_id)||0)+1); });
+    body.innerHTML=myPosts.map(p=>{
+      const cover=coverOf(p), n=photosOf(p).length;
+      return `<tr class="${p.is_active?"":"row-hidden"}"><td><div class="prop-cell">${cover?`<img class="prop-thumb" src="${esc(cover)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:'<span class="prop-thumb"></span>'}<div><b>${esc(p.title)}</b>${p.is_active?"":' <span class="badge-hidden">Hidden</span>'}<br><small class="muted">${esc(houseLabel(p))}${n>1?" · "+n+" photos":""}</small></div></div></td><td>${esc([p.city,p.state].filter(Boolean).join(", "))}</td><td>${money(p.price)}${p.listing_type==="rent"?" / mo":""}</td><td><b>${counts.get(p.id)||0}</b></td><td><button type="button" class="status-select" data-copy="${esc(propertyLink(p.id))}">Copy link</button></td><td class="row-actions"><button type="button" class="status-select" data-edit="${esc(p.id)}">Edit</button><button type="button" class="status-select" data-toggle="${esc(p.id)}">${p.is_active?"Deactivate":"Activate"}</button><button type="button" class="status-select danger" data-delete="${esc(p.id)}">Delete</button></td></tr>`;
+    }).join("");
+    body.querySelectorAll("img.prop-thumb").forEach(img=>img.addEventListener("error",()=>{img.style.visibility="hidden";}));
+    body.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>copyText(b.dataset.copy,b)));
+    body.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>{
+      const p=myPosts.find(x=>x.id===b.dataset.edit); if(p) PF.startEdit(p);
+    }));
+    body.querySelectorAll("[data-toggle]").forEach(b=>b.addEventListener("click",async()=>{
+      const p=myPosts.find(x=>x.id===b.dataset.toggle); if(!p) return;
+      b.disabled=true;
+      const {data,error}=await db.from("properties").update({is_active:!p.is_active}).eq("id",p.id).select("id");
+      if(error||!data||!data.length){console.error(error);alert("Could not update the post.");b.disabled=false;return;}
+      loadPosts(); loadProperties();
+    }));
+    body.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",async()=>{
+      const p=myPosts.find(x=>x.id===b.dataset.delete); if(!p) return;
+      if(!confirm(`Delete "${p.title}" permanently?\n\nInquiries about it stay in your lead list but will show as "General inquiry".\nTip: use Deactivate to just hide it.\n\nThis cannot be undone.`)) return;
+      b.disabled=true;
+      const {data,error}=await db.from("properties").delete().eq("id",p.id).select("id");
+      if(error||!data||!data.length){console.error(error);alert("Could not delete the post.");b.disabled=false;return;}
+      const paths=photosOf(p).map(pathFromUrl).filter(Boolean);
+      if(paths.length){try{await db.storage.from("property-images").remove(paths);}catch(e){console.warn(e);}}
+      if(PF.isEditing(p.id)) PF.exitEdit();
+      loadPosts(); loadProperties();
+    }));
   }
 
   /* ---------------- property links ---------------- */

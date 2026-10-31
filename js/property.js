@@ -20,11 +20,12 @@
   const id = new URLSearchParams(location.search).get("id");
   if (!client || !id || !UUID_RE.test(id)) { showMissing(); return; }
 
+  const PO = window.PropertyOptions || { label: () => "" };
   let current = null;
 
   async function load() {
     const { data, error } = await client.from("properties")
-      .select("id,title,description,price,listing_type,property_type,address,city,state,zip_code,beds,baths,sqft,image_url,image_urls,created_at")
+      .select("id,title,description,price,listing_type,property_type,address,city,state,zip_code,beds,baths,sqft,image_url,image_urls,created_at,owner_ref,laundry_type,parking_type,ac_type,heating_type,cat_friendly,dog_friendly,voucher_accepted")
       .eq("id", id).eq("is_active", true).maybeSingle();
     if (error) { console.error(error); showMissing("This property could not be loaded right now. Please try again later."); return; }
     if (!data) { showMissing(); return; }
@@ -101,6 +102,15 @@
       ["City", p.city || ""],
       ["State", p.state || ""],
       ["ZIP code", p.zip_code || ""],
+      ["Laundry", PO.label("laundry_type", p.laundry_type)],
+      ["Parking", PO.label("parking_type", p.parking_type)],
+      ["Air conditioning", PO.label("ac_type", p.ac_type)],
+      ["Heating", PO.label("heating_type", p.heating_type)],
+      ...(p.listing_type === "rent" ? [
+        ["Cats", p.cat_friendly ? "Allowed" : "Not allowed"],
+        ["Dogs", p.dog_friendly ? "Allowed" : "Not allowed"],
+        ["Housing vouchers", p.voucher_accepted ? "Accepted" : "Not accepted"]
+      ] : []),
       ["Listed on", p.created_at ? new Date(p.created_at).toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"}) : ""]
     ];
     const dl = $("#pdDetails");
@@ -132,7 +142,8 @@
       preferred_location: [current.city, current.state].filter(Boolean).join(", ") || null,
       message: (v.message || "").trim() || null,
       property_id: current.id,
-      ref_code: (window.RefTracker && window.RefTracker.get()) || null,
+      // the employee who posted the property gets the credit; otherwise the link the visitor came from
+      ref_code: current.owner_ref || (window.RefTracker && window.RefTracker.get()) || null,
       contact_consent: v.contact_consent === "on",
       marketing_consent: v.marketing_consent === "on",
       source: "website"
